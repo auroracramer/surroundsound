@@ -15,6 +15,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.json.JSONObject;
 
 import android.location.Location;
+import android.util.Log;
 
 public class WeatherAPI extends TimerTask implements APIHandler {
     private String apiKey;
@@ -22,24 +23,27 @@ public class WeatherAPI extends TimerTask implements APIHandler {
     private long refreshRate;
     private Location location;
     private String response;
+    private JSONObject responseJSON;
     Timer timer;
     
     public WeatherAPI(String key, long refresh) {
         apiKey = key;
         apiBaseURL = "http://api.wunderground.com/api/" + key + "/forecast/q/";
         refreshRate = refresh;
-        response = "{}";
+        response = "";
+        responseJSON = null;
         timer = new Timer();
         run();
         timer.schedule(this, refreshRate);
     }
     
     public void run() {
+
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         Location loc = LocationHandler.getInstance().location;
         String call = apiBaseURL + loc.getLatitude() + "," + loc.getLongitude() + ".json";
-        String responseString = "{}";
+        String responseString = "";
         try {
             response = httpclient.execute(new HttpGet(call));
             StatusLine statusLine = response.getStatusLine();
@@ -47,25 +51,29 @@ public class WeatherAPI extends TimerTask implements APIHandler {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 response.getEntity().writeTo(out);
                 out.close();
-                responseString = out.toString();
+                this.response = out.toString();
+                this.responseJSON = new JSONObject(this.response);
+                WeatherAnalysis.getInstance().newDataAvailable = true;
             } else{
                 //Closes the connection.
                 response.getEntity().getContent().close();
                 throw new IOException(statusLine.getReasonPhrase());
             }
         } catch (ClientProtocolException e) {
-            //TODO Handle problems..
+            Log.i("Shit", e.toString());
         } catch (IOException e) {
-            //TODO Handle problems..
+            Log.i("Shit", e.toString());
         }
     }
-    
+    public boolean responseReady() {
+        return !response.equals("");
+    }
     public String getResponse() {
         return response;
     }
     
     public JSONObject getJSONResponse() {
-        return new JSONObject(response);
+        return responseJSON;
     }
 
     public void call(String call) {

@@ -4,9 +4,9 @@ import org.opencv.core.Mat;
 
 public class CameraData {
     public Mat freqs;
-    public double[] colors;
+    public float[] colors;
     
-    public CameraData(Mat f, double[] c) {
+    public CameraData(Mat f, float[] c) {
         freqs = f;
         colors = c;
     }

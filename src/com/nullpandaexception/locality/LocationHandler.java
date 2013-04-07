@@ -1,19 +1,24 @@
 package com.nullpandaexception.locality;
 
-import android.app.Activity;
+import android.app.Service;
 import android.content.Context;
 import android.location.*;
 import android.os.Bundle;
+import android.os.IBinder;
 
 
-public class LocationHandler extends Activity {
+public class LocationHandler {
     
     public static LocationHandler instance = null;
     public Location location;
+    public Context context;
     
-    protected LocationHandler() {
+    
+    
+    protected LocationHandler(Context c) {
         // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        context = c;
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
         LocationListener locationListener = new LocationListener() {
@@ -34,14 +39,14 @@ public class LocationHandler extends Activity {
         // Register the listener with the Location Manager to receive location updates
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
     }
-    
-    public static LocationHandler getInstance() {
+    public static void init(Context c) {
         if(instance == null) {
-           instance = new LocationHandler();
-        }
+            instance = new LocationHandler(c);
+         }
+    }
+    public static LocationHandler getInstance() {
         return instance;
      }
-
 
     
     

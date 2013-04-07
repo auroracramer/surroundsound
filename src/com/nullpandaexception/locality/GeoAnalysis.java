@@ -30,7 +30,7 @@ public class GeoAnalysis {
     
     public static GeoData getData() {
         Location loc = LocationHandler.getInstance().location;
-        return new GeoData(loc.getLongitude(), loc.getLatitude());
+        return new GeoData((float)loc.getLongitude(), (float)loc.getLatitude());
     }
     
 }
